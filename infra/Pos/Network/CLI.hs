@@ -6,17 +6,18 @@
 #endif
 
 -- | Command line interface for specifying the network config
-module Pos.Network.CLI (
-    NetworkConfigOpts(..)
-  , NetworkConfigException(..)
-  , networkConfigOption
-  , ipv4ToNetworkAddress
-  , intNetworkConfigOpts
-    -- * Exported primilary for testing
-  , readTopology
-  , readPolicies
-  , fromPovOf
-  ) where
+module Pos.Network.CLI
+       (
+         NetworkConfigOpts(..)
+       , NetworkConfigException(..)
+       , networkConfigOption
+       , ipv4ToNetworkAddress
+       , intNetworkConfigOpts
+         -- * Exported primilary for testing
+       , readTopology
+       , readPolicies
+       , fromPovOf
+       ) where
 
 import           Control.Concurrent
 import           Control.Exception               (Exception (..))
@@ -48,29 +49,24 @@ import           Universum
 import           Pos.Util.SigHandler             (Signal (..), installHandler)
 #endif
 
-{-------------------------------------------------------------------------------
-  Command line arguments
--------------------------------------------------------------------------------}
+----------------------------------------------------------------------------
+-- Command line arguments
+----------------------------------------------------------------------------
 
-data NetworkConfigOpts = NetworkConfigOpts {
-      -- | Filepath to .yaml file with the network topology
-      networkConfigOptsTopology :: Maybe FilePath
-
+data NetworkConfigOpts = NetworkConfigOpts
+    { networkConfigOptsTopology :: Maybe FilePath
+      -- ^ Filepath to .yaml file with the network topology
     , networkConfigOptsKademlia :: Maybe FilePath
-
-      -- | Name of the current node
     , networkConfigOptsSelf     :: Maybe NodeName
-
-      -- | Port number to use when translating IP addresses to NodeIds
+      -- ^ Name of the current node
     , networkConfigOptsPort     :: Word16
-
+      -- ^ Port number to use when translating IP addresses to NodeIds
     , networkConfigOptsPolicies :: Maybe FilePath
-    }
-  deriving (Show)
+    } deriving (Show)
 
-{-------------------------------------------------------------------------------
-  Parser
--------------------------------------------------------------------------------}
+----------------------------------------------------------------------------
+-- Parser
+----------------------------------------------------------------------------
 
 networkConfigOption :: Opt.Parser NetworkConfigOpts
 networkConfigOption = NetworkConfigOpts
@@ -121,13 +117,13 @@ defaultDnsDomains = DnsDomains [
       [NodeAddrDNS "todo.defaultDnsDomain.com" Nothing]
     ]
 
-{-------------------------------------------------------------------------------
-  Monitor for static peers
--------------------------------------------------------------------------------}
+----------------------------------------------------------------------------
+-- Monitor for static peers
+----------------------------------------------------------------------------
 
-data MonitorEvent m =
-    MonitorRegister (Peers NodeId -> m ())
-  | MonitorSIGHUP
+data MonitorEvent m
+    = MonitorRegister (Peers NodeId -> m ())
+    | MonitorSIGHUP
 
 -- | Monitor for changes to the static config
 monitorStaticConfig :: forall m. (
@@ -445,9 +441,9 @@ parseKademlia fp = do
       Left  err      -> throwM $ CannotParseKademliaConfig (Right err)
       Right kademlia -> return kademlia
 
-{-------------------------------------------------------------------------------
-  Errors
--------------------------------------------------------------------------------}
+----------------------------------------------------------------------------
+-- Errors
+----------------------------------------------------------------------------
 
 -- | Something is wrong with the network configuration
 --
