@@ -9,6 +9,7 @@ module Pos.Update.Download
 
 import           Control.Concurrent.STM  (modifyTVar')
 import           Control.Lens            (views)
+import           Control.Monad.Catch     (handleAll)
 import           Control.Monad.Except    (ExceptT (..), throwError)
 import qualified Data.ByteArray          as BA
 import qualified Data.ByteString.Lazy    as BSL
@@ -88,7 +89,7 @@ downloadUpdateDo cst@ConfirmedProposalState {..} = do
         mupdHash = castHash . dataHash <$>
                    HM.lookup appSystemTag (upData cpsUpdateProposal)
 
-    res <- runExceptT $ do
+    res <- handleAll handleErr $ runExceptT $ do
         updHash <- maybe (throwError "This update is not for our system")
                    pure mupdHash
         let updateVersion = upSoftwareVersion cpsUpdateProposal
@@ -112,7 +113,14 @@ downloadUpdateDo cst@ConfirmedProposalState {..} = do
         putMVar sm cst
         logInfo "Update MVar filled, wallet is notified"
 
-    whenLeft res logWarning
+    whenLeft res logDownloadError
+  where
+    handleErr = return . Left . show
+    logDownloadError e =
+        logWarning $ sformat
+            ("Failed to download update proposal "%build%": "%stext)
+            cpsUpdateProposal e
+
 
 -- | Download a file by its hash.
 --
