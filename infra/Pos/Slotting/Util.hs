@@ -131,11 +131,11 @@ onNewSlotImpl withLogging startImmediately action =
         :: forall ma.
            WithLogger ma
         => SomeException -> ma ()
-    actionHandler = logError . sformat ("Error occurred: " %build)
+    actionHandler = logError . sformat ("Error occurred on running action in onNewSlot: " %build)
     workerHandler :: CardanoException -> m ()
     workerHandler e = do
         let msg = sformat ("Error occurred in 'onNewSlot' worker itself: " %build) e
-        -- REPORT:ERROR on any CardanoException caught within onNewSlot action
+        -- REPORT:ERROR on any CardanoException caught within onNewSlot machinery (not action)
         reportError msg
         delay =<< getNextEpochSlotDuration
         onNewSlotImpl withLogging startImmediately action
