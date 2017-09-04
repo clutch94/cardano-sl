@@ -107,8 +107,11 @@ downloadUpdateDo cst@ConfirmedProposalState {..} = do
                 first (sformat ("Update download (hash "%build%
                                 ") has failed: "%stext) updHash)
 
+        logInfo $ "Update was downloaded, saving to " <> show updPath
+
         liftIO $ BSL.writeFile updPath file
-        logInfo "Update was downloaded"
+        logInfo $ "Update was downloaded, saved to " <> show updPath
+
         sm <- views (lensOf @UpdateContext) ucUpdateSemaphore
         putMVar sm cst
         logInfo "Update MVar filled, wallet is notified"
