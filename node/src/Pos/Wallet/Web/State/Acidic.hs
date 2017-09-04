@@ -41,6 +41,7 @@ module Pos.Wallet.Web.State.Acidic
        , SetProfile (..)
        , SetAccountMeta (..)
        , SetWalletMeta (..)
+       , SetWalletReady (..)
        , SetWalletPassLU (..)
        , SetWalletSyncTip (..)
        , SetWalletTxMeta (..)
@@ -134,6 +135,7 @@ makeAcidic ''WalletStorage
     , 'WS.setProfile
     , 'WS.setAccountMeta
     , 'WS.setWalletMeta
+    , 'WS.setWalletReady
     , 'WS.setWalletPassLU
     , 'WS.setWalletSyncTip
     , 'WS.setWalletTxMeta

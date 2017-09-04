@@ -14,6 +14,7 @@ module Pos.Wallet.Web.Methods.Logic
        , createWalletSafe
        , newAccount
        , newAddress
+       , markWalletReady
 
        , deleteWallet
        , deleteAccount
@@ -57,7 +58,7 @@ import           Pos.Wallet.Web.State       (AddressLookupMode (Existing),
                                              getWalletPassLU, isCustomAddress,
                                              removeAccount, removeHistoryCache,
                                              removeTxMetas, removeWallet, setAccountMeta,
-                                             setWalletMeta, setWalletPassLU)
+                                             setWalletMeta, setWalletPassLU, setWalletReady)
 import           Pos.Wallet.Web.Tracking    (CAccModifier (..), CachedCAccModifier,
                                              fixCachedAccModifierFor,
                                              fixingCachedAccModifier, sortedInsertions)
@@ -174,14 +175,25 @@ newAccount addGenSeed passphrase CAccountInit {..} =
 
 createWalletSafe
     :: MonadWalletWebMode m
-    => CId Wal -> CWalletMeta -> m CWallet
-createWalletSafe cid wsMeta = do
+    => CId Wal -> CWalletMeta -> Bool -> m CWallet
+createWalletSafe cid wsMeta isReady = do
     wSetExists <- isJust <$> getWalletMeta cid
     when wSetExists $
         throwM $ RequestError "Wallet with that mnemonics already exists"
     curTime <- liftIO getPOSIXTime
-    createWallet cid wsMeta curTime
+    createWallet cid wsMeta isReady curTime
     getWallet cid
+
+markWalletReady
+  :: MonadWalletWebMode m
+  => CId Wal -> Bool -> m ()
+markWalletReady cid isReady = do
+    _ <- getWalletMeta cid >>= maybeThrow noWSet
+    setWalletReady cid isReady
+  where
+    noWSet = RequestError $
+        sformat ("No wallet with that id "%build%" found") cid
+
 
 ----------------------------------------------------------------------------
 -- Deleters
