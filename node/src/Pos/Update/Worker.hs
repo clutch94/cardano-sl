@@ -32,7 +32,7 @@ usWorkers :: WorkMode ssc ctx m => ([WorkerSpec m], OutSpecs)
 usWorkers =
     first pure $
     localOnNewSlotWorker True $ \s ->
-        recoveryCommGuard $ do
+        recoveryCommGuard "onNewSlotWorker in US" $ do
             logDebug "Updating slot for US..."
             processNewSlot s
             checkForUpdate
