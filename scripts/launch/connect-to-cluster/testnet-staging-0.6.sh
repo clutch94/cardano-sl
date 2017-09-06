@@ -4,7 +4,7 @@ set -euo pipefail
 echo "Launch a single node and connect it to 'testnet-staging-0.6' cluster..."
 
 readonly TMP_TOPOLOGY_YAML=/tmp/topology.yaml
-readonly SYSTEM_START_TIME=1503504180
+readonly SYSTEM_START_TIME=1504690749
 
 printf "wallet:
     relays:
@@ -22,7 +22,7 @@ printf "wallet:
     valency: 3
     fallbacks: 2" > "${TMP_TOPOLOGY_YAML}"
 
-stack exec -- cardano-node                                  \
+$(nix-build -A cardano-sl-static)                           \
     --tlscert ./scripts/tls-files/server.crt                \
     --tlskey ./scripts/tls-files/server.key                 \
     --tlsca ./scripts/tls-files/ca.crt                      \
